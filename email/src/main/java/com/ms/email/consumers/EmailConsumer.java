@@ -24,10 +24,4 @@ public class EmailConsumer {
         emailService.sendEmail(emailModel);
     }
 
-    public void listenEmailQueueCode(@Payload EmailRecordDto emailRecordDto){
-        EmailModel emailModel = new EmailModel();
-        BeanUtils.copyProperties(emailRecordDto, emailModel);
-        emailService.sendEmail(emailModel);
-
-    }
 }

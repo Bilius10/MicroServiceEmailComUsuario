@@ -37,13 +37,13 @@ public class UserProducer {
         emailEntity.setSubject("Confirmação de login");
 
         Random random = new Random();
-        String codigo = "";
+        StringBuilder codigo = new StringBuilder();
         for (int i = 0; i < 10; i++) {
-            codigo = String.valueOf(random.nextInt(1, 10));
+            codigo.append(String.valueOf(random.nextInt(1, 10)));
         }
         emailEntity.setText(userModel.getName()+", seu codigo de login é "+codigo);
-
-        return codigo;
+        rabbitTemplate.convertAndSend("", routingKey, emailEntity);
+        return codigo.toString();
     }
 
 }

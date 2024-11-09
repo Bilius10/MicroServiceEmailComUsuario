@@ -19,26 +19,39 @@ public class UserService {
         this.userProducer = userProducer;
     }
 
-    @Transactional
     public UserModel save(UserModel userModel){
         userModel = userRepository.save(userModel);
         userProducer.publishMessageEmail(userModel);
         return userModel;
     }
 
-
-    @Transactional
     public String login(UserModel userModel){
         Optional<UserModel> userModelNew = userRepository.findByNameAndSenha(userModel.getName(), userModel.getSenha());
 
-        if(userModelNew.get().getEmail() == null){
+        if(userModelNew.isEmpty()){
             return "Usuario não encontrado";
         }
 
-        String codigo = userProducer.publishCodeEmail(userModel);
+        String codigo = userProducer.publishCodeEmail(userModelNew.get());
         userRepository.updateByCodeTemporario(codigo, userModel.getName(), userModel.getSenha());
 
         return "Verifique seu email";
+    }
+
+    public String verifyCode(UserModel userModel){
+        Optional<UserModel> userModelNew = userRepository.findByNameAndSenha(userModel.getName(), userModel.getSenha());
+
+        if(userModelNew.isEmpty()){
+            return "Usuario não encontrado";
+        }
+
+        if(!userModelNew.get().getCodeTemporario().equals(userModel.getCodeTemporario())){
+            return "Codigo errado";
+        }
+
+        userRepository.updateByCodeTemporario("", userModel.getName(), userModel.getSenha());
+
+        return "Login feito com sucesso";
     }
 
 
