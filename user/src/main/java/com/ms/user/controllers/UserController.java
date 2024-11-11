@@ -10,9 +10,11 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 
 @RestController
@@ -43,6 +45,23 @@ public class UserController {
         BeanUtils.copyProperties(loginDTO, userModel);
 
         return ResponseEntity.status(HttpStatus.OK).body(userService.verifyCode(userModel));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<UserModel>> getAll(){
+        return ResponseEntity.status(HttpStatus.OK).body(userService.getAll());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Object> findByid(@PathVariable UUID id){
+
+        Optional<UserModel> byid = userService.findByid(id);
+
+        if(byid.isEmpty()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Usuario não encontrado");
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(byid);
     }
 
 

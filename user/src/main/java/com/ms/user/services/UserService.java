@@ -6,7 +6,9 @@ import com.ms.user.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserService {
@@ -52,6 +54,15 @@ public class UserService {
         userRepository.updateByCodeTemporario("", userModel.getName(), userModel.getSenha());
 
         return "Login feito com sucesso";
+    }
+
+    public List<UserModel> getAll(){
+        return userRepository.findAll();
+    }
+
+    public Optional<UserModel> findByid(UUID id){
+        return  userRepository.findById(id);
+
     }
 
 
