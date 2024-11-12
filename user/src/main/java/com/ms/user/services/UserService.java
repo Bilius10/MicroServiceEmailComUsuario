@@ -65,5 +65,9 @@ public class UserService {
 
     }
 
+    public Optional<UserModel> findByNameAndSenha(String name, String senha){
+        return userRepository.findByNameAndSenha(name, senha);
+    }
+
 
 }

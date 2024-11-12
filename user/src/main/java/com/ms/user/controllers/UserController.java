@@ -16,36 +16,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-
-@RestController
+@RequestMapping
+@RestController("/users")
 public class UserController {
 
     @Autowired
     private UserService userService;
-
-
-    @PostMapping("/users")
-    public ResponseEntity<UserModel> saveUser(@RequestBody @Valid UserRecordDto userRecordDto) {
-        var userModel = new UserModel();
-        BeanUtils.copyProperties(userRecordDto, userModel);
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.save(userModel));
-    }
-
-    @PostMapping("/login")
-    public ResponseEntity<String> loginUserWithoutCode(@RequestBody @Valid LoginWithoutCodeDTO loginDTO){
-        UserModel userModel = new UserModel();
-        BeanUtils.copyProperties(loginDTO, userModel);
-
-        return ResponseEntity.status(HttpStatus.OK).body(userService.login(userModel));
-    }
-
-    @PostMapping("/login/code")
-    public ResponseEntity<String> loginUserWithCode(@RequestBody @Valid LoginWithCode loginDTO){
-        UserModel userModel = new UserModel();
-        BeanUtils.copyProperties(loginDTO, userModel);
-
-        return ResponseEntity.status(HttpStatus.OK).body(userService.verifyCode(userModel));
-    }
 
     @GetMapping
     public ResponseEntity<List<UserModel>> getAll(){
