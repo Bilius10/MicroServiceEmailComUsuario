@@ -23,7 +23,6 @@ public class UserModel implements Serializable, UserDetails {
     private String email;
     private String senha;
     private UserRole role;
-    private String codeTemporario;
 
     public UUID getUserId() {
         return userId;
@@ -52,10 +51,6 @@ public class UserModel implements Serializable, UserDetails {
     public String getSenha() { return senha; }
 
     public void setSenha(String senha) { this.senha = senha; }
-
-    public String getCodeTemporario() { return codeTemporario; }
-
-    public void setCodeTemporario(String codeTemporario) { this.codeTemporario = codeTemporario; }
 
     public UserRole getRole() { return role; }
 

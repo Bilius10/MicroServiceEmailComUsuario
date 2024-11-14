@@ -1,6 +1,6 @@
 package com.ms.user.controllers;
 
-import com.ms.user.dtos.LoginWithCode;
+import com.ms.user.Enum.UserRole;
 import com.ms.user.dtos.LoginWithoutCodeDTO;
 import com.ms.user.dtos.UserRecordDto;
 import com.ms.user.models.UserModel;
@@ -16,12 +16,40 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@RequestMapping
-@RestController("/users")
+@RestController
+@RequestMapping("/users")
 public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @PostMapping("/login")
+    public ResponseEntity loginUserWithoutCode(@RequestBody @Valid LoginWithoutCodeDTO loginDTO){
+
+        UserModel userModel = new UserModel();
+        BeanUtils.copyProperties(loginDTO, userModel);
+
+        Optional<UserModel> userModel1 = userService.loginAndSendEmail(userModel);
+        if(userModel1.isEmpty()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Esse usuario não existe");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body("Verifique seu email");
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<Object> saveUser(@RequestBody @Valid UserRecordDto userRecordDto) {
+
+        UserModel userModel = new UserModel();
+        BeanUtils.copyProperties(userRecordDto, userModel);
+        userModel.setRole(UserRole.valueOf(userRecordDto.role()));
+
+        Optional<UserModel> register = userService.register(userModel);
+
+        if(register.isEmpty()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Ja existe um usuario com esse nome");
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(register);
+    }
 
     @GetMapping
     public ResponseEntity<List<UserModel>> getAll(){

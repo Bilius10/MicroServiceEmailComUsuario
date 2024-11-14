@@ -13,13 +13,10 @@ import java.util.UUID;
 @Transactional
 public interface UserRepository extends JpaRepository<UserModel, UUID> {
 
-    @Query("SELECT t from UserModel t where t.name = :name and t.senha = :senha")
-    Optional<UserModel> findByNameAndSenha(String name, String senha);
+    @Query("SELECT t FROM UserModel t WHERE t.name = :name")
+    UserDetails findUserDetailsByName(String name);
 
-    @Query("SELECT t from UserModel t where t.name = :name")
-    UserDetails findByName(String name);
+    @Query("SELECT u FROM UserModel u WHERE u.name = :name")
+    Optional<UserModel> findByName(String name);
 
-    @Modifying
-    @Query("UPDATE UserModel set codeTemporario = :codigo where name = :name and senha = :senha")
-    void updateByCodeTemporario(String codigo, String name, String senha);
 }

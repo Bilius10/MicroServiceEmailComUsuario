@@ -30,20 +30,15 @@ public class UserProducer {
         rabbitTemplate.convertAndSend("", routingKey, emailDto);
     }
 
-    public String publishCodeEmail(UserModel userModel){
+    public void publishCodeEmail(UserModel userModel, String token){
         EmailEntity emailEntity = new EmailEntity();
         emailEntity.setUserId(userModel.getUserId());
         emailEntity.setEmailTo(userModel.getEmail());
         emailEntity.setSubject("Confirmação de login");
 
-        Random random = new Random();
-        StringBuilder codigo = new StringBuilder();
-        for (int i = 0; i < 10; i++) {
-            codigo.append(String.valueOf(random.nextInt(1, 10)));
-        }
-        emailEntity.setText(userModel.getName()+", seu codigo de login é "+codigo);
+        emailEntity.setText(userModel.getName()+", seu codigo de login é "+token);
         rabbitTemplate.convertAndSend("", routingKey, emailEntity);
-        return codigo.toString();
+
     }
 
 }

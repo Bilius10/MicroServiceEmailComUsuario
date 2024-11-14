@@ -2,12 +2,16 @@ package com.ms.user.Enum;
 
 public enum UserRole {
 
-    ADMIN("ADMIN"),
-    USER("USER");
+    ADMIN("admin"),
+    USER("user");
 
     private String role;
 
     UserRole(String user) {
         this.role = user;
+    }
+
+    public String getRole(){
+        return role;
     }
 }

@@ -1,8 +1,14 @@
 package com.ms.user.services;
 
+import com.ms.user.InfraSecurity.TokenService;
 import com.ms.user.models.UserModel;
 import com.ms.user.producers.UserProducer;
 import com.ms.user.repositories.UserRepository;
+import org.apache.catalina.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,47 +19,49 @@ import java.util.UUID;
 @Service
 public class UserService {
 
-    final UserRepository userRepository;
-    final UserProducer userProducer;
+    private final UserRepository userRepository;
+    private final UserProducer userProducer;
+    private final AuthenticationManager authenticationManager;
+    private final TokenService tokenService;
 
-    public UserService(UserRepository userRepository, UserProducer userProducer) {
-        this.userRepository = userRepository;
+    public UserService(UserProducer userProducer, UserRepository userRepository, AuthenticationManager authenticationManager, TokenService tokenService) {
         this.userProducer = userProducer;
+        this.userRepository = userRepository;
+        this.authenticationManager = authenticationManager;
+        this.tokenService = tokenService;
     }
 
-    public UserModel save(UserModel userModel){
-        userModel = userRepository.save(userModel);
+    public Optional<UserModel> register(UserModel userModel){
+        Optional<UserModel> byName = userRepository.findByName(userModel.getName());
+
+        if(byName.isPresent()){
+            return byName;
+        }
+
+        String encryptedPassword = new BCryptPasswordEncoder().encode(userModel.getSenha());
+        userModel.setSenha(encryptedPassword);
+        userRepository.save(userModel);
+
         userProducer.publishMessageEmail(userModel);
-        return userModel;
+        return Optional.of(userModel);
     }
 
-    public String login(UserModel userModel){
-        Optional<UserModel> userModelNew = userRepository.findByNameAndSenha(userModel.getName(), userModel.getSenha());
+    public Optional<UserModel> loginAndSendEmail(UserModel userModel){
 
-        if(userModelNew.isEmpty()){
-            return "Usuario não encontrado";
+        Optional<UserModel> byName = userRepository.findByName(userModel.getName());
+
+        if(byName.isPresent()){
+            return byName;
         }
 
-        String codigo = userProducer.publishCodeEmail(userModelNew.get());
-        userRepository.updateByCodeTemporario(codigo, userModel.getName(), userModel.getSenha());
+        var usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userModel.getName(), userModel.getSenha());
+        var auth = this.authenticationManager.authenticate(usernamePasswordAuthenticationToken);
 
-        return "Verifique seu email";
-    }
+        var token = tokenService.generateToken((UserModel) auth.getPrincipal());
 
-    public String verifyCode(UserModel userModel){
-        Optional<UserModel> userModelNew = userRepository.findByNameAndSenha(userModel.getName(), userModel.getSenha());
+        userProducer.publishCodeEmail(userModel, token);
 
-        if(userModelNew.isEmpty()){
-            return "Usuario não encontrado";
-        }
-
-        if(!userModelNew.get().getCodeTemporario().equals(userModel.getCodeTemporario())){
-            return "Codigo errado";
-        }
-
-        userRepository.updateByCodeTemporario("", userModel.getName(), userModel.getSenha());
-
-        return "Login feito com sucesso";
+        return Optional.of(userModel);
     }
 
     public List<UserModel> getAll(){
@@ -62,12 +70,8 @@ public class UserService {
 
     public Optional<UserModel> findByid(UUID id){
         return  userRepository.findById(id);
-
     }
 
-    public Optional<UserModel> findByNameAndSenha(String name, String senha){
-        return userRepository.findByNameAndSenha(name, senha);
-    }
 
 
 }
