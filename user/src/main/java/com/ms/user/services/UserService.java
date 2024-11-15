@@ -50,18 +50,17 @@ public class UserService {
 
         Optional<UserModel> byName = userRepository.findByName(userModel.getName());
 
-        if(byName.isPresent()){
+        if(byName.isEmpty()){
             return byName;
         }
 
         var usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userModel.getName(), userModel.getSenha());
         var auth = this.authenticationManager.authenticate(usernamePasswordAuthenticationToken);
-
         var token = tokenService.generateToken((UserModel) auth.getPrincipal());
 
-        userProducer.publishCodeEmail(userModel, token);
+        userProducer.publishCodeEmail(byName.get(), token);
 
-        return Optional.of(userModel);
+        return byName;
     }
 
     public List<UserModel> getAll(){

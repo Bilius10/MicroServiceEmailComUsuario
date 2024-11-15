@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -24,13 +23,13 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/login")
-    public ResponseEntity loginUserWithoutCode(@RequestBody @Valid LoginWithoutCodeDTO loginDTO){
+    public ResponseEntity<String> loginUserWithoutCode(@RequestBody @Valid LoginWithoutCodeDTO loginDTO){
 
         UserModel userModel = new UserModel();
         BeanUtils.copyProperties(loginDTO, userModel);
 
-        Optional<UserModel> userModel1 = userService.loginAndSendEmail(userModel);
-        if(userModel1.isEmpty()){
+        Optional<UserModel> userModelOptional = userService.loginAndSendEmail(userModel);
+        if(userModelOptional.isEmpty()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Esse usuario não existe");
         }
         return ResponseEntity.status(HttpStatus.OK).body("Verifique seu email");
@@ -41,7 +40,6 @@ public class UserController {
 
         UserModel userModel = new UserModel();
         BeanUtils.copyProperties(userRecordDto, userModel);
-        userModel.setRole(UserRole.valueOf(userRecordDto.role()));
 
         Optional<UserModel> register = userService.register(userModel);
 
@@ -67,8 +65,4 @@ public class UserController {
 
         return ResponseEntity.status(HttpStatus.OK).body(byid);
     }
-
-
-
-
 }

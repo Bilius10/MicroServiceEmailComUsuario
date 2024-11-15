@@ -22,7 +22,29 @@ public class UserModel implements Serializable, UserDetails {
     private String name;
     private String email;
     private String senha;
+
+    @Enumerated(EnumType.STRING)
     private UserRole role;
+
+    private boolean accountNonExpired;
+    private boolean accountNonLocked;
+    private boolean credentialsNonExpired;
+    private boolean enabled;
+
+    public UserModel() {
+        this.accountNonExpired = true;
+        this.accountNonLocked = true;
+        this.enabled = true;
+        this.credentialsNonExpired = true;
+        this.role = UserRole.USER;
+    }
+
+    public UserModel(String name, String email, String senha, UserRole role) {
+        this.name = name;
+        this.email = email;
+        this.senha = senha;
+        this.role = role;
+    }
 
     public UUID getUserId() {
         return userId;
@@ -78,21 +100,21 @@ public class UserModel implements Serializable, UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return true;
+        return accountNonExpired;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return accountNonLocked;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return true;
+        return credentialsNonExpired;
     }
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return enabled;
     }
 }

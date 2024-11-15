@@ -7,6 +7,5 @@ import javax.management.relation.Role;
 
 public record UserRecordDto(@NotBlank String name,
                             @NotBlank @Email String email,
-                            @NotBlank String senha,
-                            @NotBlank String role) {
+                            @NotBlank String senha) {
 }

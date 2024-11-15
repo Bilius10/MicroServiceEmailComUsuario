@@ -35,8 +35,8 @@ public class UserProducer {
         emailEntity.setUserId(userModel.getUserId());
         emailEntity.setEmailTo(userModel.getEmail());
         emailEntity.setSubject("Confirmação de login");
+        emailEntity.setText(userModel.getName()+", seu codigo de login é \n"+token);
 
-        emailEntity.setText(userModel.getName()+", seu codigo de login é "+token);
         rabbitTemplate.convertAndSend("", routingKey, emailEntity);
 
     }
